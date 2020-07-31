@@ -179,7 +179,11 @@ class BaseTable extends React.PureComponent {
    * Get the total height of all rows, including expanded rows.
    */
   getTotalRowsHeight() {
-    const { rowHeight, estimatedRowHeight } = this.props;
+    const { rowHeight, estimatedRowHeight, totalRowsHeight } = this.props;
+
+    if (totalRowsHeight) {
+      return totalRowsHeight;
+    }
 
     if (estimatedRowHeight) {
       return this.table ? this.table.getTotalRowsHeight() : this._data.length * estimatedRowHeight;
@@ -776,8 +780,10 @@ class BaseTable extends React.PureComponent {
 
   // for dynamic row height
   _getRowHeight(rowIndex) {
-    const { estimatedRowHeight, rowKey } = this.props;
-    return this._rowHeightMap[this._data[rowIndex][rowKey]] || estimatedRowHeight;
+    const { estimatedRowHeight, rowKey, getRowHeight } = this.props;
+    return getRowHeight
+      ? getRowHeight({ rowData: this._data[rowIndex] })
+      : this._rowHeightMap[this._data[rowIndex][rowKey]] || estimatedRowHeight;
   }
 
   _getIsResetting() {
@@ -1096,6 +1102,14 @@ BaseTable.propTypes = {
    * Estimated row height, the real height will be measure dynamically according to the content
    */
   estimatedRowHeight: PropTypes.number,
+  /**
+   * Get height of a row
+   */
+  getRowHeight: PropTypes.func,
+  /**
+   * The sum of heights of all rows
+   */
+  totalRowsHeight: PropTypes.number,
   /**
    * The height of the table header, set to 0 to hide the header, could be an array to render multi headers.
    */
