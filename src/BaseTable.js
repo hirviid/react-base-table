@@ -322,7 +322,14 @@ class BaseTable extends React.PureComponent {
   }
 
   renderRow({ isScrolling, columns, rowData, rowIndex, style }) {
-    const { rowClassName, rowRenderer, rowEventHandlers, expandColumnKey, estimatedRowHeight } = this.props;
+    const {
+      rowClassName,
+      rowRenderer,
+      rowEventHandlers,
+      expandColumnKey,
+      estimatedRowHeight,
+      getRowHeight,
+    } = this.props;
 
     const rowClass = callOrReturn(rowClassName, { columns, rowData, rowIndex });
     const extraProps = callOrReturn(this.props.rowProps, { columns, rowData, rowIndex });
@@ -354,7 +361,7 @@ class BaseTable extends React.PureComponent {
       rowEventHandlers,
       rowRenderer,
       // for frozen rows we use fixed rowHeight
-      estimatedRowHeight: rowIndex >= 0 ? estimatedRowHeight : undefined,
+      estimatedRowHeight: !getRowHeight && rowIndex >= 0 ? estimatedRowHeight : undefined,
       getIsResetting: this._getIsResetting,
       cellRenderer: this.renderRowCell,
       expandIconRenderer: this.renderExpandIcon,
@@ -731,6 +738,11 @@ class BaseTable extends React.PureComponent {
     const scrollbarSize = this.props.getScrollbarSize();
     if (scrollbarSize > 0) {
       this.setState({ scrollbarSize });
+    }
+
+    if (this.props.getRowHeight && !this.props.estimatedRowHeight) {
+      console.warn(`getRowHeight only works in combination with estimatedRowHeight. 
+      Please provide an estimatedRowHeight.`);
     }
   }
 
